@@ -18,10 +18,12 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php": "~5.4.0|~7.0.0"
+        "php": "~5.4.0|~7.0.0",
+        "phossa2/libs": "dev-master",
+        "phossa2/app-skeleton": "dev-master"
     },
     "config": {
-        "bin-dir": "system/script",
+        "optimize-autoloader": true,
         "platform": {
             "php": "5.4.0"
         }
