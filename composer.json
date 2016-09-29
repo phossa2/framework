@@ -22,7 +22,6 @@
     },
     "config": {
         "bin-dir": "system/script",
-        "preferred-install": "dist",
         "platform": {
             "php": "5.4.0"
         }
