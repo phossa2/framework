@@ -18,13 +18,7 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php": "~5.4.0|~7.0.0",
-        "phossa2/libs": "dev-master",
-        "phossa2/app-skeleton": "dev-master",
-        "fxp/composer-asset-plugin": "1.*"
-    },
-    "autoload": {
-        "psr-4": { "App\\": "app/" }
+        "php": "~5.4.0|~7.0.0"
     },
     "config": {
         "bin-dir": "system/script",
@@ -41,7 +35,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0-dev"
+            "dev-master": "2.1-dev"
         },
         "asset-installer-paths": {
             "npm-asset-library": "vendor/npm",
