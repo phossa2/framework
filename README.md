@@ -12,11 +12,6 @@ It requires PHP 5.4, supports PHP 7.0+ and HHVM. It is compliant with [PSR-1][PS
 [PSR-4]: http://www.php-fig.org/psr/psr-4/ "PSR-4: Autoloader"
 [PSR-5]: https://github.com/phpDocumentor/fig-standards/blob/master/proposed/phpdoc.md "PSR-5: PHPDoc"
 
-Under construction
----
-
-Coming soon ...
-
 Installation
 ---
 Install via the `composer` utility.
