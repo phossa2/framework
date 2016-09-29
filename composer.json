@@ -16,6 +16,7 @@
         "source": "https://github.com/phossa2/framework",
         "forum": "https://www.phossa.com/forum/"
     },
+    "minimum-stability": "dev",
     "require": {
         "php": "~5.4.0|~7.0.0",
         "phossa2/libs": "dev-master",
