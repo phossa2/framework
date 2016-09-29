@@ -1,9 +1,9 @@
 {
     "name": "phossa2/framework",
     "license": "MIT",
-    "type": "library",
+    "type": "project",
     "description": "A PHP framework with dependency inject, middleware, ORM etc.",
-    "keywords": ["framework", "phossa"],
+    "keywords": ["framework", "phossa", "phossa2"],
     "homepage": "https://github.com/phossa2/framework",
     "authors": [
         {
@@ -11,30 +11,40 @@
             "homepage": "https://github.com/phossa2"
         }
     ],
-    "require": {
-        "php": "~5.4|~7.0",
-        "phossa2/shared": "^2.0.21"
+    "support": {
+        "issues": "https://github.com/phossa2/framework/issues?state=open",
+        "source": "https://github.com/phossa2/framework",
+        "forum": "https://www.phossa.com/forum/"
     },
-    "require-dev": {
-        "phpunit/phpunit": "4.*",
-        "squizlabs/php_codesniffer": "2.*"
+    "require": {
+        "php": "~5.4.0|~7.0.0",
+        "phossa2/libs": "dev-master",
+        "phossa2/app-skeleton": "dev-master",
+        "fxp/composer-asset-plugin": "1.*"
     },
     "autoload": {
-        "psr-0": { "Phossa2\\Framework\\": "src/" }
-    },
-    "scripts": {
-        "test": "phpunit",
-        "check": "phpcs --standard=psr2 src/",
-        "format": "phpcbf --standard=psr2 src/"
+        "psr-4": { "App\\": "app/" }
     },
     "config": {
+        "bin-dir": "system/script",
+        "preferred-install": "dist",
         "platform": {
             "php": "5.4.0"
         }
     },
+    "scripts": {
+        "post-install-cmd": [
+        ],
+        "post-update-cmd": [
+        ]
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "2.0-dev"
+        },
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
         }
     },
     "archive": {
