@@ -33,7 +33,7 @@ or add the following lines to your `composer.json`
 Directory structure
 ---
 
-- server based installation
+- single server installation
 
   ```
   |--- .env
@@ -41,6 +41,8 @@ Directory structure
   +--- project/
         |
         |--- app/
+        |
+        |--- config/
         |
         |--- plugin/
         |
@@ -76,6 +78,7 @@ Directory structure
   |
   |--- project/  NFS mounted shared code/asset
   |      |--- app/
+  |      |--- config/
   |      |--- plugin/
   |      |--- public/
   |      |--- system/
@@ -89,8 +92,6 @@ Directory structure
 
 - Solution
 
-  - centralized logs, log dir `runtime/shared/log/host1`
-  - code shared ?
   - different tempaltes ? skin
 
 License

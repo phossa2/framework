@@ -19,8 +19,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
-        "phossa2/libs": "dev-master",
-        "phossa2/app-skeleton": "dev-master"
+        "phossa2/app-skeleton": "dev-master",
+        "fxp/composer-asset-plugin": "1.*"
     },
     "config": {
         "optimize-autoloader": true,
