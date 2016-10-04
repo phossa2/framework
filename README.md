@@ -34,7 +34,7 @@ modifying directory settings in the [`.env`](#env) file.
 
 - Single server installation
 
-  the distributed version is for a single server installation.
+  the default version is for a single server installation.
 
   ```
   |--- .env                             the environment file
@@ -45,7 +45,7 @@ modifying directory settings in the [`.env`](#env) file.
         |--- plugin/                    where all the plugins installed
         |--- public/                    where public stuff located
         |      |--- asset/
-        |      |--- index.php           single public entry
+        |      +--- index.php           single public entry
         |--- runtime/                   runtime related stuff
         |      |--- local/              host-specific storage
         |      |      |--- cache
@@ -242,7 +242,7 @@ modifying directory settings in the [`.env`](#env) file.
       ]
       ```
 
-    - install the app via `composer require` or `composer update`
+    - then install the app via `composer require` or `composer update`
 
       ```bash
       # cd PROJECT/
