@@ -1,7 +1,7 @@
 # phossa2/framework
 
-**phossa2/framework** is a modern PHP framework built-upon middleware and
-dependency injection.
+**phossa2/framework** is a modern PHP framework built-upon configuration,
+dependency injection and middlewares.
 
 It requires PHP 5.4, supports PHP 7.0+ and HHVM. It is compliant with
 [PSR-1][PSR-1], [PSR-2][PSR-2], [PSR-3][PSR-3], [PSR-4][PSR-4], and other
@@ -26,7 +26,7 @@ Install via the `composer` utility.
 # composer create-project phossa2/framework PROJECT
 ```
 
-<a name="dir"></a>Directory structures
+<a name="dir"></a>Directory structure
 ---
 
 **phossa2/framework** can be restructured to fit different requirements by
@@ -34,7 +34,7 @@ modifying directory settings in the [`.env`](#env) file.
 
 - Single server installation
 
-  the default version is for a single server installation.
+  Default framework distribution is for a single server installation.
 
   ```
   |--- .env                             the environment file
@@ -103,27 +103,27 @@ modifying directory settings in the [`.env`](#env) file.
 
     - load other environments from [`.env`](#env) file.
 
-    - start [configure](#config) and [DI container](#di)
+    - start [$config](#config) and [$container](#di)
 
   3. <a name="env"></a>`.env`
 
     Environment file installled at one level upper of `PROJECT` directory. This
-    file is host-specific and may differ on different servers.
+    file is host specific and may differ on different servers.
 
     See [phossa2/env][phossa2/env] and [phossa2/config][phossa2/config] for
     detail.
 
-    - Change app environment
+    - To change app environment
 
       Change the value `PHOSSA2_ENV` to implement different servers, such as
       production server, dev server or staging servers.
 
-    - Restructure the framework
+    - To restructure the framework
 
       By changing directory settings in this file, user may be able to
       restructure the framework.
 
-  4. start config and DI container
+  4. start `$config` and `$container`
 
     - <a name="config"></a>`configure`
 
@@ -138,9 +138,9 @@ modifying directory settings in the [`.env`](#env) file.
       implementation built upon [phossa2/config][phossa2/config].
 
       Container objects are configured in `config/di.php` or scattered in the
-      'di' section of different files such as `config/cache.php`.
+      'di' section of different files such as `config/db.php`.
 
-      For simplicity, a service locator `Phossa2\Di\Service` is provided.
+      For simplicity, a service locator `Phossa2\Di\Service` is also provided.
 
       The container is available as `Service::container()`. The configuration
       is available as `Service::config()`.
@@ -148,7 +148,7 @@ modifying directory settings in the [`.env`](#env) file.
       ```php
       // db is defined in config/db.php
 
-      // get the db config
+      // get the db configuration array
       $db_conf = Service::config()->get('db');
 
       // get the db object
@@ -160,7 +160,7 @@ modifying directory settings in the [`.env`](#env) file.
 
   5. Process the app middleware queue
 
-    Middlewares are defined in `config/middleware`.
+    Middlewares are defined in `config/middleware.php`.
 
 - Console script execution path
 
@@ -174,6 +174,191 @@ modifying directory settings in the [`.env`](#env) file.
     Console middleware queue is configured in `config/middleware.php`. It will
     look for controller/action pairs in the 'system/Console/' and 'app/Console/'
     for specific actions.
+
+<a name="driven"></a>Configuration driven framework
+---
+
+**phossa2/framework** is a configruation driven framework. Most of the tools,
+utilities are defined in config files under the `config/` directory. Objects are
+generated automatically by the DI container and avaiable via
+`Service::objectId()`.
+
+For example, the database connection is defined in `config/db.php`
+
+```php
+use Phossa2\Db\Driver\Pdo\Driver as Pdo_Driver;
+
+// config/db.php
+return [
+    // PDO driver classname
+    'driver.pdo.class' => Pdo_Driver::getClassName(),
+
+    // connect conf
+    'driver.pdo.conf' => [
+        'dsn' => 'mysql:dbname=test;host=127.0.0.1;charset=utf8',
+    ],
+
+    // container section
+    'di' => [
+        // ${#db}
+        'db' => [
+            'class' => '${db.driver.pdo.class}',
+            'args' => ['${db.driver.pdo.conf}'],
+        ],
+    ],
+];
+```
+
+The last section `di` equals to defining a `$db` in the container
+
+```php
+$db = new Pdo_Driver(['dsn' => '...']);
+$container->set('db', $db);
+```
+
+To use the database connection in your code, you may either inject it in
+another container object configuration file.
+
+```php
+// config/article.php
+return [
+    'class' => MyArticle::getClassName();
+
+    // ${#article} in container
+    'di' => [
+        'article' => [
+            'class' => '${article.class}',
+            'args' => ['${#db}'] // inject $db
+        ]
+    ]
+];
+```
+
+Or use it explicitly with the service locator in the code,
+
+```php
+use Phossa2\Di\Service;
+
+// get db
+$db = Service::db();
+
+$article = new MyArticle($db);
+```
+
+Complicated db configurations can be found in `config/production/db.php` which
+uses a db connection manager with a pool of a read-write connection and couple
+of read-only connections.
+
+```php
+use Phossa2\Db\Manager as Db_Manager;
+use Phossa2\Db\Driver\Pdo\Driver as Pdo_Driver;
+
+// config/production/db.php
+return [
+    // driver manager
+    'manager.class' => Db_Manager::getClassName(),
+
+    // more connect confs
+    'driver.pdo.conf2' => [
+        'dsn' => 'mysql:dbname=test;host=127.0.0.2;charset=utf8',
+    ],
+
+    'driver.pdo.conf3' => [
+        'dsn' => 'mysql:dbname=test;host=127.0.0.3;charset=utf8',
+    ],
+
+    // callback to get a db from db manager with tagname
+    'callable.getdriver' => function($dbm, $tag) {
+        return $dbm->getDriver($tag);
+    },
+
+    // container section
+    'di' => [
+        // ${#dbm}
+        'dbm' => [
+            'class' => '${db.manager.class}',
+            'methods' => [
+                ['addDriver', ['${#db1}', 1]],
+                ['addDriver', ['${#db2}', 5]],
+                ['addDriver', ['${#db3}', 5]],
+            ],
+        ],
+
+        // ${#db1}
+        'db1' => [
+            'class' => '${db.driver.pdo.class}',
+            'args' => ['${db.driver.pdo.conf1}'],
+            'methods' => [
+                ['addTag', ['RW']]
+            ]
+        ],
+
+        // ${#db2}
+        'db2' => [
+            'class' => '${db.driver.pdo.class}',
+            'args' => ['${db.driver.pdo.conf2}'],
+            'methods' => [
+                ['addTag', ['RO']]
+            ]
+        ],
+
+        // ${#db3}
+        'db3' => [
+            'class' => '${db.driver.pdo.class}',
+            'args' => ['${db.driver.pdo.conf3}'],
+            'methods' => [
+                ['addTag', ['RO']]
+            ]
+        ],
+
+        // ${#dbro} read only driver (round-robin)
+        'dbro' => [
+            'class' => '${db.callable.getdriver}',
+            'args' => ['${#dbm}', 'RO'],
+            'scope' => Container::SCOPE_SINGLE,
+        ],
+
+        // ${#dbrw} readwrite driver (round-robin if any)
+        'dbrw' => [
+            'class' => '${db.callable.getdriver}',
+            'args' => ['${#dbm}', 'RW'],
+            'scope' => Container::SCOPE_SINGLE,
+        ],
+
+        // ${#db} whatever driver
+        'db' => [
+            'class' => '${db.callable.getdriver}',
+            'args' => ['${#dbm}', ''],
+            'scope' => Container::SCOPE_SINGLE,
+        ],
+    ],
+];
+
+```
+
+The previous configruations equal to the following code,
+
+```php
+// different db connectors
+$db1 = (new Pdo_Driver($conf ))->addTag('RW');
+$db2 = (new Pdo_Driver($conf2))->addTag('RO');
+$db3 = (new Pdo_Driver($conf3))->addTag('RO');
+
+// db manager
+$dbm = (new Db\Manager\Manager())
+    ->addDriver($db1, 1)    // readwrite, factor 1
+    ->addDriver($db2, 5)    // read_only, factor 5
+    ->addDriver($db3, 5)    // read_only, factor 5
+
+// get a readonly connection (round robin)
+$dbro = $dbm->getDriver('RO');
+
+// get a readwrite connection
+$dbrw = $dbm->getDriver('RW');
+
+// get a db connection (either RW or RO)
+$db = $dbm->getDriver('');
+```
 
 <a name="app"></a>Application programming
 ---

@@ -13,14 +13,10 @@
 /*# declare(strict_types=1); */
 
 use Phossa2\Di\Container;
-use Phossa2\Db\Manager as Db_Manager;
 use Phossa2\Db\Driver\Pdo\Driver as Pdo_Driver;
 
 /**
- * database configuration goes here.
- *
- * - `dev/db.php` for dev servers if different
- * - `production/db.php` for production if different
+ * database configurations.
  */
 return [
 
@@ -30,108 +26,27 @@ return [
      *
      ***********************************************************/
 
-    // driver manager
-    'manager.class' => Db_Manager::getClassName(),
-
     // PDO driver classname
     'driver.pdo.class' => Pdo_Driver::getClassName(),
 
     // connect confs
-    'driver.pdo.conf1' => [
+    'driver.pdo.conf' => [
         'dsn' => 'mysql:dbname=test;host=127.0.0.1;charset=utf8',
     ],
 
-    'driver.pdo.conf2' => [
-        'dsn' => 'mysql:dbname=test;host=127.0.0.2;charset=utf8',
-    ],
-
-    'driver.pdo.conf3' => [
-        'dsn' => 'mysql:dbname=test;host=127.0.0.3;charset=utf8',
-    ],
-
-    'callable.getdriver' => function($dbm, $tag) {
-        return $dbm->getDriver($tag);
-    },
-
     /***********************************************************
      *
-     * $db1 = (new Db\Pdo\Driver($conf1))->addTag('RW');
-     * $db2 = (new Db\Pdo\Driver($conf2))->addTag('RO');
-     * $db3 = (new Db\Pdo\Driver($conf3))->addTag('RO');
+     * DI container
      *
-     * $dbm = (new Db\Manager\Manager())
-     *     ->addDriver($db1, 1)    // readwrite, factor 1
-     *     ->addDriver($db2, 5)    // read_only, factor 5
-     *     ->addDriver($db3, 5)    // read_only, factor 5
-     *
-     * // get a readonly driver
-     * $dbro = $dbm->getDriver('RO');
-     *
-     * // get a readwrite driver
-     * $dbrw = $dbm->getDriver('RW');
-     *
-     * // get a driver (whatever)
-     * $db = $dbm->getDriver('');
+     * $db = new Db\Pdo\Driver($conf);
      *
      ***********************************************************/
 
     'di' => [
-        // ${#dbm}
-        'dbm' => [
-            'class' => '${db.manager.class}',
-            'methods' => [
-                ['addDriver', ['${#db1}', 1]],
-                ['addDriver', ['${#db2}', 5]],
-                ['addDriver', ['${#db3}', 5]],
-            ],
-        ],
-
-        // ${#db1}
-        'db1' => [
-            'class' => '${db.driver.pdo.class}',
-            'args' => ['${db.driver.pdo.conf1}'],
-            'methods' => [
-                ['addTag', ['RW']]
-            ]
-        ],
-
-        // ${#db2}
-        'db2' => [
-            'class' => '${db.driver.pdo.class}',
-            'args' => ['${db.driver.pdo.conf2}'],
-            'methods' => [
-                ['addTag', ['RO']]
-            ]
-        ],
-
-        // ${#db3}
-        'db3' => [
-            'class' => '${db.driver.pdo.class}',
-            'args' => ['${db.driver.pdo.conf3}'],
-            'methods' => [
-                ['addTag', ['RO']]
-            ]
-        ],
-
-        // ${#dbro} read only driver (round-robin)
-        'dbro' => [
-            'class' => '${db.callable.getdriver}',
-            'args' => ['${#dbm}', 'RO'],
-            'scope' => Container::SCOPE_SINGLE,
-        ],
-
-        // ${#dbrw} readwrite driver (round-robin if any)
-        'dbrw' => [
-            'class' => '${db.callable.getdriver}',
-            'args' => ['${#dbm}', 'RW'],
-            'scope' => Container::SCOPE_SINGLE,
-        ],
-
-        // ${#db} whatever driver
+        // ${#db}
         'db' => [
-            'class' => '${db.callable.getdriver}',
-            'args' => ['${#dbm}', ''],
-            'scope' => Container::SCOPE_SINGLE,
+            'class' => '${db.driver.pdo.class}',
+            'args' => ['${db.driver.pdo.conf}'],
         ],
     ],
 ];
