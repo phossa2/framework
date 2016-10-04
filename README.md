@@ -22,7 +22,8 @@ Installation
 Install via the `composer` utility.
 
 ```bash
-# composer require "phossa2/framework"
+# cd installation_dir/
+# composer create-project phossa2/framework PROJECT
 ```
 
 <a name="dir"></a>Directory structures
@@ -37,31 +38,21 @@ modifying directory settings in the [`.env`](#env) file.
 
   ```
   |--- .env                             the environment file
-  |
   +--- PROJECT/                         the project directory
-        |
         |--- phossa2                    the utility
-        |
         |--- app/                       app installation dir
-        |
         |--- config/                    where all the config files located
-        |
         |--- plugin/                    where all the plugins installed
-        |
         |--- public/                    where public stuff located
         |      |--- asset/
         |      |--- index.php           single public entry
-        |
         |--- runtime/                   runtime related stuff
         |      |--- local/              host-specific storage
         |      |      |--- cache
         |      |      +--- session
-        |      |
         |      +--- log/                log file directory
-        |
         |--- system/                    system files
         |      +--- bootstrap.php       bootstrap file
-        |
         +--- vendor/                    third-party libs located
   ```
 
@@ -72,35 +63,22 @@ modifying directory settings in the [`.env`](#env) file.
 
   ```php
   |--- .env                             host-specific environments
-  |
   |--- local                            host-specific local storage
-  |     |
   |     |--- cache/
-  |     |
   |     +--- session/
   |
   |--- PROJECT/                         shared among servers (NFS mountable)
-  |     |
   |     |--- phossa2
-  |     |
   |     |--- app/
-  |     |
   |     |--- config/
-  |     |
   |     |--- plugin/
-  |     |
   |     |--- public/
-  |     |
   |     |--- system/
-  |     |
   |     +--- vendor/
   |
   +--- runtime/                         shared runtime stuff (NFS mountable)
-        |
         |--- log/host1                  host-specific log dir
-        |
         |--- upload/                    upload dir
-        |
         +--- static/                    generated static html files
   ```
 
@@ -116,7 +94,7 @@ modifying directory settings in the [`.env`](#env) file.
 
   2. <a name="bootstrap"></a>`system/bootstrap.php`
 
-    Required by [`public/index.php`](index) and [phossa2](#utility) file.
+    Required by [`public/index.php`](#index) or [phossa2](#util) file.
     Bootstrap all required stuff, including
 
     - set basic environments.
@@ -129,7 +107,7 @@ modifying directory settings in the [`.env`](#env) file.
 
   3. <a name="env"></a>`.env`
 
-    Environment file installled at one level upper of project directory. This
+    Environment file installled at one level upper of `PROJECT` directory. This
     file is host-specific and may differ on different servers.
 
     See [phossa2/env][phossa2/env] and [phossa2/config][phossa2/config] for
@@ -194,34 +172,37 @@ modifying directory settings in the [`.env`](#env) file.
   2. Console middleware queue
 
     Console middleware queue is configured in `config/middleware.php`. It will
-    look for controller/action pairs defined in the 'system/Console/' and
-    'app/Console/' for specific actions.
+    look for controller/action pairs in the 'system/Console/' and 'app/Console/'
+    for specific actions.
 
 <a name="app"></a>Application programming
+---
 
 - Do it a simple way
 
-  You may just start programming in the `app/` directory
+  You may just start programming in the `app/` directory where
+  [phossa2/app-skeleton][phossa2/app-skeleton] is already installed during the
+  project creation.
 
 - Do it a nice way
 
-  1. Git clone [app-skeleton](https://github.com/phossa2/app-skeleton) as a new
-    application copy to your local directory.
+  1. Git clone [app-skeleton](https://github.com/phossa2/app-skeleton) to your
+    local directory.
 
   2. Add your own stuff to the cloned application skeleton.
 
-  3. Remove the initially installed `app-skeleton` from the framework
+  3. Remove the initially installed `app-skeleton` from the project
 
     ```bash
-    # cd framework/
+    # cd PROJECT/
     # composer remove phossa2/app-skeleton
     ```
 
-  4. Install your app into the framework
+  4. Install your app into the `PROJECT`
 
     - If your app is on the git
 
-      Add the following lines to your `framework/composer.json`
+      Add the following lines to your `PROJECT/composer.json`
 
       ```
       "repositories": [
@@ -242,7 +223,7 @@ modifying directory settings in the [`.env`](#env) file.
 
     - If your app is just a zip.
 
-      Add  the following lines to your `framework/composer.json`
+      Add  the following lines to your `PROJECT/composer.json`
 
       ```
       "repositories": [
@@ -261,10 +242,10 @@ modifying directory settings in the [`.env`](#env) file.
       ]
       ```
 
-    - install the app via composer
+    - install the app via `composer require` or `composer update`
 
       ```bash
-      # cd framework/
+      # cd PROJECT/
       # composer require my/app
       ```
 
