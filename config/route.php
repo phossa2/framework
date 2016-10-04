@@ -33,7 +33,12 @@ return [
     // resolver classname
     'resolver.class' => ResolverSimple::getClassName(),
 
-    // collectors, read all configs from 'route/' dir
+    // controller namespaces to search
+    'resolver.args' => [
+        'namespaces' => ['', 'App\\Controller']
+    ],
+
+    // collectors, read all route configs from 'config/route/' dir
     'collectors' => function() {
         $result = [];
         foreach (glob(__DIR__ . '/route/*.php') as $file) {
@@ -50,8 +55,9 @@ return [
 
     /***********************************************************
      *
-     * $dispatcher = (new Dispatcher(null, new ResolverSimple()))
-     *     ->addCollectors(...);
+     * $dispatcher = (new Dispatcher(null, new ResolverSimple([
+     *     'namespaces' => ['', 'App\\Controller']
+     * ])))->addCollectors(...);
      *
      ***********************************************************/
 
@@ -66,6 +72,9 @@ return [
         ],
 
         // ${#route_resolver}
-        'route_resolver' => '${route.resolver.class}',
+        'route_resolver' => [
+            'class' => '${route.resolver.class}',
+            'args' => ['${route.resolver.args}'],
+        ],
     ],
 ];

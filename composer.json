@@ -2,7 +2,7 @@
     "name": "phossa2/framework",
     "license": "MIT",
     "type": "project",
-    "description": "A PHP framework with dependency inject, middleware, ORM etc.",
+    "description": "A modern PHP framework built-upon configuration, dependency injection and middlewares.",
     "keywords": ["framework", "phossa", "phossa2"],
     "homepage": "https://github.com/phossa2/framework",
     "authors": [

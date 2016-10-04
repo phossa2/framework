@@ -34,7 +34,10 @@ return [
     // project's realpath tmpdir
     'dir.tmpdir' => '${system.tmpdir}',
 
-    // virtual storage dir
+    // virtual root dir
+    'virtual.rootdir' => '/',
+
+    // virtual temp dir
     'virtual.tmpdir' => '/tmp',
 
     /***********************************************************
@@ -55,10 +58,10 @@ return [
         'storage' => [
             'class' => '${storage.class}',
 
-            // virtual '/'
-            'args' => ['/', '${#filesystem_runtime}'],
+            // mount virtual '/'
+            'args' => ['${storage.virtual.rootdir}', '${#filesystem_runtime}'],
 
-            // virtual '/tmp'
+            // mount virtual '/tmp'
             'methods' => [
                 ['mount', ['${storage.virtual.tmpdir}', '${#filesystem_tmpdir}']]
             ]

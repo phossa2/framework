@@ -27,7 +27,7 @@ return [
     'class' => Queue::getClassName(),
 
     // main middleware queue
-    'queue' => [
+    'queue.main' => [
         '${#middleware_session}',
         '${#middleware_dispatcher}',
     ],
@@ -42,10 +42,10 @@ return [
      ***********************************************************/
 
     'di' => [
-        // ${#middleware}
+        // ${#middleware} main middleware queue
         'middleware' => [
             'class' => '${middleware.class}',
-            'args'  => ['${middleware.queue}'],
+            'args'  => ['${middleware.queue.main}'],
         ],
 
         // ${#middleware_session}

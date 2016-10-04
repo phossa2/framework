@@ -15,9 +15,10 @@ proposed PSR standards.
 [phossa2/di]: https://github.com/phossa2/di "phossa2/di"
 [phossa2/env]: https://github.com/phossa2/di "phossa2/env"
 [phossa2/middleware]: https://github.com/phossa2/middleware "phossa2/middleware"
+[phossa2/route]: https://github.com/phossa2/route "phossa2/route"
 [phossa2/app-skeleton]: https://github.com/phossa2/app-skeleton "phossa2/app-skeleton"
 
-Installation
+Create the project
 ---
 Install via the `composer` utility.
 
@@ -29,17 +30,18 @@ Install via the `composer` utility.
 <a name="dir"></a>Directory structure
 ---
 
-**phossa2/framework** can be restructured to fit different requirements by
-modifying directory settings in the [`.env`](#env) file.
+**phossa2/framework** is delivered with [the single server installation](#single)
+directory structure. It also can be restructured to fit different requirements
+by modifying directory settings in the [`.env`](#env) file.
 
-- Single server installation
+- <a name="single"></a>Single server installation
 
   Default framework distribution is for a single server installation.
 
   ```
   |--- .env                             the environment file
   +--- PROJECT/                         the project directory
-        |--- phossa2                    the utility
+        |--- phossa2                    the utility script
         |--- app/                       app installation dir
         |--- config/                    where all the config files located
         |--- plugin/                    where all the plugins installed
@@ -53,13 +55,13 @@ modifying directory settings in the [`.env`](#env) file.
         |      +--- log/                log file directory
         |--- system/                    system files
         |      +--- bootstrap.php       bootstrap file
-        +--- vendor/                    third-party libs located
+        +--- vendor/                    third-party libs
   ```
 
 - Multiple servers installation
 
-  The framework can be installed across multiple servers to provide capabilities
-  such as load balancing, central app managment (NFS mounted) etc.
+  The framework can also be installed across multiple servers to provide
+  capabilities such as load balancing, central app managment (NFS mounted) etc.
 
   ```php
   |--- .env                             host-specific environments
@@ -67,7 +69,7 @@ modifying directory settings in the [`.env`](#env) file.
   |     |--- cache/
   |     +--- session/
   |
-  |--- PROJECT/                         shared among servers (NFS mountable)
+  |--- PROJECT/                         shared among servers (NFS mounted)
   |     |--- phossa2
   |     |--- app/
   |     |--- config/
@@ -76,7 +78,7 @@ modifying directory settings in the [`.env`](#env) file.
   |     |--- system/
   |     +--- vendor/
   |
-  +--- runtime/                         shared runtime stuff (NFS mountable)
+  +--- runtime/                         shared runtime stuff (NFS mounted)
         |--- log/host1                  host-specific log dir
         |--- upload/                    upload dir
         +--- static/                    generated static html files
@@ -90,11 +92,25 @@ modifying directory settings in the [`.env`](#env) file.
   1. <a name="index"></a>`public/index.php`
 
     Single app entry point. Load [`system/bootstrap.php`](#bootstrap) file and
-    then process the app middleware queue.
+    then process the app middleware queue defined in `config/middleware.php`
+
+    ```php
+    <?php
+    // public/index.php
+
+    // Load bootstrap file
+    require dirname(__DIR__) . '/system/bootstrap.php';
+
+    // execute the main middleware queue
+    $response = Service::middleware()->process(
+        ServerRequestFactory::fromGlobals(),
+        new Response()
+    );
+    ```
 
   2. <a name="bootstrap"></a>`system/bootstrap.php`
 
-    Required by [`public/index.php`](#index) or [phossa2](#util) file.
+    Required by [`public/index.php`](#index) or [phossa2](#util) utility script.
     Bootstrap all required stuff, including
 
     - set basic environments.
@@ -103,7 +119,8 @@ modifying directory settings in the [`.env`](#env) file.
 
     - load other environments from [`.env`](#env) file.
 
-    - start [$config](#config) and [$container](#di)
+    - start [$config](#config) and [$container](#di) which read configs from
+      the `config` directory.
 
   3. <a name="env"></a>`.env`
 
@@ -115,7 +132,7 @@ modifying directory settings in the [`.env`](#env) file.
 
     - To change app environment
 
-      Change the value `PHOSSA2_ENV` to implement different servers, such as
+      Change the value of `PHOSSA2_ENV` to implement different servers, such as
       production server, dev server or staging servers.
 
     - To restructure the framework
@@ -127,8 +144,8 @@ modifying directory settings in the [`.env`](#env) file.
 
     - <a name="config"></a>`configure`
 
-      Configurations are grouped into files and located in one directory of the
-      framework `config/`.
+      Configurations are grouped into files and located in the directory
+      `config/`.
 
       See [phossa2/config][phossa2/config] for detail.
 
@@ -140,21 +157,24 @@ modifying directory settings in the [`.env`](#env) file.
       Container objects are configured in `config/di.php` or scattered in the
       'di' section of different files such as `config/db.php`.
 
-      For simplicity, a service locator `Phossa2\Di\Service` is also provided.
+      A service locator `Phossa2\Di\Service` is also provided.
 
-      The container is available as `Service::container()`. The configuration
-      is available as `Service::config()`.
+      The container object is available as `Service::container()`. The
+      configuration object is available as `Service::config()`.
 
       ```php
-      // db is defined in config/db.php
+      use Phossa2\Di\Service;
+
+      $config = Service::config();
+      $container = Service::container();
 
       // get the db configuration array
-      $db_conf = Service::config()->get('db');
+      $db_conf = $config->get('db');
 
       // get the db object
-      $db = Service::container()->get('db');
+      $db = $container->get('db');
 
-      // or
+      // or get from locator
       $db = Service::db();
       ```
 
@@ -164,7 +184,7 @@ modifying directory settings in the [`.env`](#env) file.
 
 - Console script execution path
 
-  1. <a name="util"></a>`phossa2`
+  1. <a name="util"></a>`phossa2` utility script
 
     Single utility entry point. Load [`system/bootstrap.php`](#bootstrap) file
     and then process console middleware queue.
@@ -173,17 +193,17 @@ modifying directory settings in the [`.env`](#env) file.
 
     Console middleware queue is configured in `config/middleware.php`. It will
     look for controller/action pairs in the 'system/Console/' and 'app/Console/'
-    for specific actions.
+    directories for specific actions.
 
 <a name="driven"></a>Configuration driven framework
 ---
 
-**phossa2/framework** is a configruation driven framework. Most of the tools,
+**phossa2/framework** is a configruation driven framework. Most of the objects,
 utilities are defined in config files under the `config/` directory. Objects are
 generated automatically by the DI container and avaiable via
 `Service::objectId()`.
 
-For example, the database connection is defined in `config/db.php`
+For example, the database connection is defined in `config/db.php` as follows,
 
 ```php
 use Phossa2\Db\Driver\Pdo\Driver as Pdo_Driver;
@@ -216,7 +236,7 @@ $db = new Pdo_Driver(['dsn' => '...']);
 $container->set('db', $db);
 ```
 
-To use the database connection in your code, you may either inject it in
+To utilize the database connection in your code, you may either inject it in
 another container object configuration file.
 
 ```php
@@ -234,7 +254,7 @@ return [
 ];
 ```
 
-Or use it explicitly with the service locator in the code,
+Or use it explicitly with the service locator,
 
 ```php
 use Phossa2\Di\Service;
@@ -287,7 +307,7 @@ return [
         // ${#db1}
         'db1' => [
             'class' => '${db.driver.pdo.class}',
-            'args' => ['${db.driver.pdo.conf1}'],
+            'args' => ['${db.driver.pdo.conf}'],
             'methods' => [
                 ['addTag', ['RW']]
             ]
@@ -325,7 +345,7 @@ return [
             'scope' => Container::SCOPE_SINGLE,
         ],
 
-        // ${#db} whatever driver
+        // ${#db} either RW or RO
         'db' => [
             'class' => '${db.callable.getdriver}',
             'args' => ['${#dbm}', ''],
@@ -359,6 +379,51 @@ $dbrw = $dbm->getDriver('RW');
 // get a db connection (either RW or RO)
 $db = $dbm->getDriver('');
 ```
+
+<a name="mw"></a>Middleware driven framework
+---
+
+**phossa2/framework** is not a pure MVC structure but a middleware-centric
+framework. For middleware runner implementation, please see
+[phossa2/middleware][phossa2/middleware].
+
+Different middleware queues are defined in `config/middleware.php`.
+
+```php
+
+```
+
+<a name="route"></a>Routing
+---
+
+Routes are handled by `Phossa2\Middleware\Middleware\Phossa2RouteMiddleware`.
+See [phossa2/middleware][phossa2/middleware], [phossa2/route][phossa2/route] for
+detail.
+
+Route dispatcher `$dispatcher` is defined in `config/route.php`. It will be
+injected into the main middleware queue when processing reaches the
+`Phossa2RouteMiddleware`.
+
+Different routes should be defined in `config/route/*.php` files. For example,
+
+```php
+// route/50_admin.php
+$ns = "App\\Controller\\"; // controller namespace
+
+return [
+    'prefix' => '/admin/',
+    'routes' => [
+        // resolve to ['App\Controller\AdminController', 'defaultAction']
+        '/admin/{action:xd}/{id:d}' => [
+            'GET,POST',                     // http methods,
+            [$ns . 'Admin', 'default'],     // handler,
+            ['id' => 1]                     // default values
+        ],
+    ]
+];
+```
+
+**Note**: `50_` in the route filename is for sorting purpose.
 
 <a name="app"></a>Application programming
 ---

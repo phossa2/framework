@@ -37,9 +37,9 @@ return [
 
     /***********************************************************
      *
-     * $cache = new CachePool(new StorageDriver(
+     * $cache = (new CachePool(new StorageDriver(
      *     $storage, '/tmp/cache'
-     * ));
+     * )))->addExtension(new DistributedExpiration());
      *
      ***********************************************************/
 
@@ -48,6 +48,8 @@ return [
         'cache' => [
             'class' => '${cache.class}',
             'args'  => ['${#cache_driver}'],
+
+            // add extensions
             'methods' => [
                 ['addExtension', ['${#cache_ext_dist}']],
             ]
