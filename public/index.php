@@ -15,6 +15,7 @@
 use Phossa2\Di\Service;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory;
+use Zend\Diactoros\Response\SapiEmitter;
 
 /**
  *
@@ -33,7 +34,11 @@ use Zend\Diactoros\ServerRequestFactory;
 require dirname(__DIR__) . '/system/bootstrap.php';
 
 // execute the main middleware queue
+/* @var Response $response */
 $response = Service::middleware()->process(
     ServerRequestFactory::fromGlobals(),
     new Response()
 );
+
+// emitter the response
+(new SapiEmitter())->emit($response->withBody('test'));

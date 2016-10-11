@@ -14,7 +14,11 @@
 
 use Phossa2\Middleware\Queue;
 use Phossa2\Middleware\Middleware\Phossa2RouteMiddleware;
+use Phossa2\Middleware\Middleware\Phossa2SessionMiddleware;
 
+/**
+ * middleware configs
+ */
 return [
 
     /***********************************************************
@@ -31,6 +35,12 @@ return [
         '${#middleware_session}',
         '${#middleware_dispatcher}',
     ],
+
+    // session middleware class
+    'session.class' => Phossa2SessionMiddleware::getClassName(),
+
+    // router class
+    'router.class' => Phossa2RouteMiddleware::getClassName(),
 
     /***********************************************************
      *
@@ -49,11 +59,14 @@ return [
         ],
 
         // ${#middleware_session}
-        'middleware_session' => '',
+        'middleware_session' => [
+            'class' => '${middleware.session.class}',
+            'args' => ['${#session}'], // from session.php
+        ],
 
         // ${#middleware_dispatcher}
         'middleware_dispatcher' => [
-            'class' => Phossa2RouteMiddleware::getClassName(),
+            'class' => '${middleware.router.class}',
             'args' => ['${#dispatcher}'], // from route.php
         ],
     ],

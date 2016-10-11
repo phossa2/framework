@@ -33,9 +33,11 @@ return [
     'driver.class' => StorageDriver::getClassName(),
 
     // extension: DistributedExpiration
-    'ext.distributed' => DistributedExpiration::getClassName(),
+    'distributed.class' => DistributedExpiration::getClassName(),
 
     /***********************************************************
+     *
+     * // stores cache in storage://tmp/cache
      *
      * $cache = (new CachePool(new StorageDriver(
      *     $storage, '/tmp/cache'
@@ -63,7 +65,7 @@ return [
 
         // ${#cache_ext_dist}
         'cache_ext_dist' => [
-            'class' => '${cache.ext.distributed}'
+            'class' => '${cache.distributed.class}'
         ],
     ],
 ];

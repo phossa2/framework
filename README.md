@@ -120,7 +120,7 @@ by modifying directory settings in the [`.env`](#env) file.
     - load other environments from [`.env`](#env) file.
 
     - start [$config](#config) and [$container](#di) which read configs from
-      the `config` directory.
+      the `config/` directory.
 
   3. <a name="env"></a>`.env`
 
@@ -187,13 +187,13 @@ by modifying directory settings in the [`.env`](#env) file.
   1. <a name="util"></a>`phossa2` utility script
 
     Single utility entry point. Load [`system/bootstrap.php`](#bootstrap) file
-    and then process console middleware queue.
+    and then process command line arguments
 
-  2. Console middleware queue
+  2. Common line arguments
 
-    Console middleware queue is configured in `config/middleware.php`. It will
-    look for controller/action pairs in the 'system/Console/' and 'app/Console/'
-    directories for specific actions.
+    Common line arguments processed. And then look for controller/action pairs
+    in the 'system/Console/' and 'app/Console/' directories for specific
+    actions.
 
 <a name="driven"></a>Configuration driven framework
 ---
